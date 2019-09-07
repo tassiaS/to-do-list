@@ -25,4 +25,4 @@ class getAllTodosTests(TestCase):
         todos = Todo.objects.all()
         serializer = TodoSerializer(todos, many=True)
         self.assertEqual(response.data, serializer.data)
-        self.assertEqual(response.status_code, status.HTTP_200_ok)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)

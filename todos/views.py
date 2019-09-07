@@ -23,7 +23,9 @@ def delete_update_todo(request, pk):
 def get_post_todo(request):
     # get all todos
     if request.method == 'GET':
-        return Response({})
+        todos = Todo.objects.all()
+        serealizer = TodoSerializer(todos, many=True)
+        return Response(serealizer.data)
     # insert a new record for a todo
     elif request.method == 'POST':
         return Response({})
