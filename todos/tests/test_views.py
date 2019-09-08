@@ -84,3 +84,17 @@ class UpdateTodoTest(TestCase):
                             )
         
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+class deleteTodoTest(TestCase):
+    "Test module for deleting a todo"
+
+    def setUp(self):
+        self.todo_chocolate = Todo.objects.create(message='Buy chocolate')
+    
+    def test_delete_valid_todo(self):
+        response = client.delete(reverse('delete_update_todo', kwargs={'pk': self.todo_chocolate.pk}))
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_delete_invalid_todo(self):
+        response = client.delete(reverse('delete_update_todo', kwargs={'pk': 30}))
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)

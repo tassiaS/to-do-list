@@ -14,22 +14,23 @@ def delete_update_todo(request, pk):
 
     # delete a single todo
     if request.method == 'DELETE':
-        return Response({})
+        todo.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
     #  update of a single todo
     elif request.method == 'PUT':
         serializer = TodoSerializer(todo, data = request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status= status.HTTP_)
-        return Response(serilizer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.data, status= status.HTTP_204_NO_CONTENT)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'POST'])
 def get_post_todo(request):
     # get all todos
     if request.method == 'GET':
         todos = Todo.objects.all()
-        serealizer = TodoSerializer(todos, many=True)
-        return Response(serealizer.data)
+        serializer = TodoSerializer(todos, many=True)
+        return Response(serializer.data)
     # insert a new record for a todo
     elif request.method == 'POST':
         data = {
