@@ -1,13 +1,13 @@
-from django.conf.urls import url
+from django.urls import path
 from . import views
 
 urlpatterns = [
-    url(
-        'api/v1/todos/pk',
+    path(
+        'api/v1/todos/<int:pk>',
         views.delete_update_todo,
         name='delete_update_todo'
     ),
-    url(
+    path(
         'api/v1/todos',
         views.get_post_todo,
         name='get_post_todo'
