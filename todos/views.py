@@ -17,7 +17,11 @@ def delete_update_todo(request, pk):
         return Response({})
     #  update of a single todo
     elif request.method == 'PUT':
-        return Response({})
+        serializer = TodoSerializer(todo, data = request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status= status.HTTP_)
+        return Response(serilizer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'POST'])
 def get_post_todo(request):
@@ -28,7 +32,16 @@ def get_post_todo(request):
         return Response(serealizer.data)
     # insert a new record for a todo
     elif request.method == 'POST':
-        return Response({})
+        data = {
+            'message': request.data.get('message')
+        }
+        serializer = TodoSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status = status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
     
 
 

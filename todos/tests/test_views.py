@@ -53,3 +53,34 @@ class CreateTodoTest(TestCase):
                                content_type = 'application/json' 
                               )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+class UpdateTodoTest(TestCase):
+    "Test module for updating a todo"
+
+    def setUp(self):
+        self.todo_chocolate = Todo.objects.create(message='Buy Chocolate')
+        self.valid_todo = {
+            'message':'Buy milk'
+        }
+
+        self.invalid_todo = {
+            'message':''
+        }
+    
+    def test_update_valid_todo(self):
+        response = client.put(reverse('delete_update_todo', 
+                                kwargs={'pk':self.todo_chocolate.pk}),
+                                data = json.dumps(self.valid_todo),
+                                content_type='application/json'
+                            )
+        
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_update_invalid_todo(self):
+        response = client.put(reverse('delete_update_todo', 
+                                kwargs={'pk':self.todo_chocolate.pk}),
+                                data = json.dumps(self.invalid_todo),
+                                content_type='application/json'
+                            )
+        
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
