@@ -9,7 +9,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 
 
-class getAllTodosTests(TestCase):
+class GetAllTodosTests(TestCase):
     "Test module for get all todos API"
 
     def setUp(self):
@@ -99,7 +99,18 @@ class UpdateTodoTest(TestCase):
         
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-class deleteTodoTest(TestCase):
+    def test_update_invalid_owner(self):
+        invalid_owner = User.objects.create_user('invalidusername', 'invalidemail', 'password')
+        self.client.force_authenticate(user=invalid_owner)
+        response = self.client.put(reverse('delete_update_todo', 
+                                kwargs={'pk':self.todo_chocolate.pk}),
+                                data = json.dumps(self.valid_todo),
+                                content_type='application/json'
+                            )
+        
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+class DeleteTodoTest(TestCase):
     "Test module for deleting a todo"
 
     def setUp(self):
@@ -116,3 +127,9 @@ class deleteTodoTest(TestCase):
     def test_delete_invalid_todo(self):
         response = self.client.delete(reverse('delete_update_todo', kwargs={'pk': 30}))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_delete_invalid_owner(self):
+        invalid_owner = User.objects.create_user('invalidusername', 'invalidemail', 'password')
+        self.client.force_authenticate(user=invalid_owner)
+        response = self.client.delete(reverse('delete_update_todo', kwargs={'pk': self.todo_chocolate.pk}))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
