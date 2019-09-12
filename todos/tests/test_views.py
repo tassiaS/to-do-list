@@ -9,51 +9,37 @@ from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 
 
-# initialize the APIClient app
-# user = User.objects.get(username='lauren')
-client = APIClient()
-# client.force_authenticate(user=user)
-
 class getAllTodosTests(TestCase):
     "Test module for get all todos API"
 
     def setUp(self):
         user = User.objects.create_user('username', 'email', 'password')
-        token = Token.objects.get(user=user)
-        client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
+        self.client = APIClient()
+        self.client.force_authenticate(user=user)
 
-        # self.username = 'askerTest'
-        # self.email = 'askerTest@gmail.com'
-        # self.user = User.objects.create_user('username', 'email', 'password')
-        # self.token = Token.objects.get(user=user)
-        # self.api_authentication()
-        
-        Todo.objects.create(message="Buy milk", user=self.user)
-        Todo.objects.create(message="Buy rice", user=self.user)
-        Todo.objects.create(message="Buy chocolate", user=self.user)
-   
-    # def api_authentication(self):
-    #     self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
+        Todo.objects.create(message="Buy milk", user=user)
+        Todo.objects.create(message="Buy rice", user=user)
+        Todo.objects.create(message="Buy chocolate", user=user)
+
 
     def test_get_all_todos(self):
         #get API response
-        response = client.get(reverse('get_post_todo'))
+        response = self.client.get(reverse('get_post_todo'))
         #get data from db
         todos = Todo.objects.all()
         serializer = TodoSerializer(todos, many=True)
         
-        self.assertEqual(response.data, serializer.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, serializer.data)
+
 
 class CreateTodoTest(TestCase):
     "Test module for inserting a new todo"
 
     def setUp(self):
-        # self.username = 'askerTest'
-        # self.email = 'askerTest@gmail.com'
-        # self.user = User.objects.create_user(self.username, self.email, 'password')
-        # self.token = Token.objects.get(user__username='askerTest')
-        # self.api_authentication()
+        user = User.objects.create_user('username', 'email', 'password')
+        self.client = APIClient()
+        self.client.force_authenticate(user=user)
         
         self.valid_todo = {
             'message':'Buy milk'
@@ -63,11 +49,8 @@ class CreateTodoTest(TestCase):
             'message':''
         }
     
-    # def api_authentication(self):
-    #     self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
-    
     def test_create_valid_todo(self):
-        response =  client.post(reverse('get_post_todo'), 
+        response =  self.client.post(reverse('get_post_todo'), 
                                 data=json.dumps(self.valid_todo),
                                 content_type = 'application/json'
                                 )
@@ -75,7 +58,7 @@ class CreateTodoTest(TestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_create_invalid_todo(self):
-        response = client.post(reverse('get_post_todo'),
+        response = self.client.post(reverse('get_post_todo'),
                                data = json.dumps(self.invalid_todo),
                                content_type = 'application/json' 
                               )
@@ -85,13 +68,11 @@ class UpdateTodoTest(TestCase):
     "Test module for updating a todo"
 
     def setUp(self):
-        # self.username = 'askerTest'
-        # self.email = 'askerTest@gmail.com'
-        # self.user = User.objects.create_user(self.username, self.email, 'password')
-        # self.token = Token.objects.get(user__username='askerTest')
-        # self.api_authentication()
+        user = User.objects.create_user('username', 'email', 'password')
+        self.client = APIClient()
+        self.client.force_authenticate(user=user)
 
-        self.todo_chocolate = Todo.objects.create(message='Buy Chocolate')
+        self.todo_chocolate = Todo.objects.create(message='Buy Chocolate', user=user)
         self.valid_todo = {
             'message':'Buy milk'
         }
@@ -100,11 +81,8 @@ class UpdateTodoTest(TestCase):
             'message':''
         }
     
-    # def api_authentication(self):
-    #     self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
-    
     def test_update_valid_todo(self):
-        response = client.put(reverse('delete_update_todo', 
+        response = self.client.put(reverse('delete_update_todo', 
                                 kwargs={'pk':self.todo_chocolate.pk}),
                                 data = json.dumps(self.valid_todo),
                                 content_type='application/json'
@@ -113,7 +91,7 @@ class UpdateTodoTest(TestCase):
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_update_invalid_todo(self):
-        response = client.put(reverse('delete_update_todo', 
+        response = self.client.put(reverse('delete_update_todo', 
                                 kwargs={'pk':self.todo_chocolate.pk}),
                                 data = json.dumps(self.invalid_todo),
                                 content_type='application/json'
@@ -125,21 +103,16 @@ class deleteTodoTest(TestCase):
     "Test module for deleting a todo"
 
     def setUp(self):
-        # self.username = 'askerTest'
-        # self.email = 'askerTest@gmail.com'
-        # self.user = User.objects.create_user(self.username, self.email, 'password')
-        # self.token = Token.objects.get(user__username='askerTest')
-        # self.api_authentication()
+        user = User.objects.create_user('username', 'email', 'password')
+        self.client = APIClient()
+        self.client.force_authenticate(user=user)
 
-        self.todo_chocolate = Todo.objects.create(message='Buy chocolate')
-
-    # def api_authentication(self):
-    #     self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
+        self.todo_chocolate = Todo.objects.create(message='Buy chocolate', user=user)
     
     def test_delete_valid_todo(self):
-        response = client.delete(reverse('delete_update_todo', kwargs={'pk': self.todo_chocolate.pk}))
+        response = self.client.delete(reverse('delete_update_todo', kwargs={'pk': self.todo_chocolate.pk}))
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_delete_invalid_todo(self):
-        response = client.delete(reverse('delete_update_todo', kwargs={'pk': 30}))
+        response = self.client.delete(reverse('delete_update_todo', kwargs={'pk': 30}))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
